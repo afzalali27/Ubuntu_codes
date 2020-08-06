@@ -1,0 +1,145 @@
+//#include <termios.h>
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <string>
+//#include <unistd.h>
+
+using namespace std;
+
+// prototypes
+void turnOffTerminal();
+void turnOnTerminal();
+void getPlayerName(int playerNum, string& name);
+void getPlayerNames(string& n1, string& n2);
+int promptForNumToGuess(string name);
+int promptForGuess(string name);
+int promptForValue(string& player, string& guesser);
+int playRound(string& player, string& guesser);
+void printGameResult(string winner, int roundNo, int wins, int lost);
+void printGameResult(int roundNo, int tieSocre);
+void playGame();
+
+int main(){
+
+	playGame();
+	return 0;
+}
+
+// definations
+void getPlayerName(int playerNum, string& name) {
+	cout << "Player " << playerNum << " enter your name: ";
+	getline(cin, name);
+}
+void getPlayerNames(string& n1, string& n2) {
+	getPlayerName(1, n1);
+	getPlayerName(2, n2);
+}
+int promptForGuess(string name) {
+	int num;
+	cout << name << " enter a value between 1 and 100\n";
+	cin >> num;
+	while (num < 1 || num>100) {
+		cout << "Sorry, that is not a valid number.\n";
+		cout << name << " enter a value between 1 and 100\n";
+		cin >> num;
+	}
+	return num;
+}
+int promptForNumToGuess(string name) {
+	int num;
+	cout << name << " enter a value between 1 and 100\n";
+	//turnOffTerminal();
+	cin >> num;
+	//turnOnTerminal();
+	while (num < 1 || num>100) {
+		cout << "Sorry, that is not a valid number.\n";
+		cout << name << " enter a value between 1 and 100\n";
+		//turnOffTerminal();
+		cin >> num;
+		//turnOnTerminal();
+	}
+	return num;
+}
+int promptForValue(string& player, string& guesser) {
+	cout <<"\n"<< guesser << " close your eyes until " << player << " is ready.\n";
+	return promptForNumToGuess(player);
+}
+int playRound(string& player, string& guesser) {
+	int valueToBeGuessed = promptForValue(player, guesser);
+	int guess = promptForGuess(guesser);
+	int tries = 1;
+	while (guess != valueToBeGuessed) {
+		if (guess < valueToBeGuessed)
+			cout << "Too Low, try again.\n";
+		else
+			cout << "Too High, try again.\n";
+		guess = promptForGuess(guesser);
+		tries++;
+	}
+	cout << "You got it in " << tries << " guess(es)!\n";
+	return tries;
+}
+void printGameResult(string winner, int roundNo, int wins, int lost) {
+	cout << winner << " wins round " << roundNo << " " << wins << " to " << lost << "\n";
+}
+void printGameResult(int roundNo, int tieSocre) {
+	cout << "Round " << roundNo << " is a tie. " << tieSocre << " to " << tieSocre << endl;
+}
+void playGame() {
+	string player1, player2;
+	getPlayerNames(player1, player2);
+	cout << "\nWelcome " << player1 << " and " << player2 << endl;
+	int turn = 0;
+	int round = 0;
+	int winsOfPlayer1 = 0, winsOfPlayer2 = 0;
+	int tries1, tries2;
+	while (winsOfPlayer1 < 2 && winsOfPlayer2 < 2) {
+		round++;
+		tries1 = tries2 = 0;
+		cout << "\nRound " << round << endl;
+		// player 2 will guess first
+		if (turn == 0) {
+			tries1 = playRound(player1, player2);
+			tries2 = playRound(player2, player1);
+		}
+		// player 1 will guess first
+		else {
+			tries2 = playRound(player2, player1);
+			tries1 = playRound(player1, player2);
+		}
+		if (tries1 == tries2) {
+			printGameResult(round, tries1);
+		}
+		else if (tries1 > tries2) {
+			printGameResult(player1, round, tries1, tries2);
+			winsOfPlayer1++;
+		}
+		else {
+			printGameResult(player2, round, tries2, tries1);
+			winsOfPlayer2++;
+		}
+		// change the turn
+		turn = (turn + 1) % 2;
+	}
+	cout << endl;
+	if (winsOfPlayer1 > winsOfPlayer2)
+		cout << player1 << " wins!\n";
+	else
+		cout << player2 << " wins!\n";
+}
+
+/*void turnOffTerminal() {
+	termios oldt;
+	tcgetattr(STDIN_FILENO, &oldt);
+	termios newt = oldt;
+	newt.c_lflag &= ~ECHO;
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+}
+void turnOnTerminal() {
+	termios oldt;
+	tcgetattr(STDIN_FILENO, &oldt);
+	termios newt = oldt;
+	newt.c_lflag |= ECHO;
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+}*/
