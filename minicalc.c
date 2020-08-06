@@ -1,42 +1,46 @@
 #include <stdio.h>  
 #include <unistd.h>  
-
+#include <stdlib.h>
+void showUsage(){
+	printf("Usage: minicalc [-a num] [-d num] [-m num] [-x] value\n");
+	exit(1);
+}
 int main(int argc, char* argv[])
 {
-    int add = 1, sub = 1, div = 1, mul = 1, fpower=1;
+    if(argc<3){
+	showUsage();
+    }
+    int add = 1, sub = 1, div = 1, mul = 1, fpower=0;
     int fadd = 0, fsub = 0, fdiv = 0, fmul = 0;
     int value;
     int opt; 
-    while ((opt = getopt(argc, argv, ":if : admsx")) != -1)
+    while ((opt = getopt(argc, argv, "a:d:m:s:x")) != -1)
     {
         switch (opt)
         {
         case 'a':
             fadd = 1;
             add = atoi(optarg);
-            printf("add %d\n", add);
             break;
         case 's':
             fsub = 1;
             sub = atoi(optarg);
-            printf("sub %d\n", sub);
             break;
         case 'd':
             fdiv = 1;
             div = atoi(optarg);
-            printf("div %d\n", div);
             break;
         case 'm':
             fmul = 1;
             mul = atoi(optarg);
-            printf("mul %d\n", mul);
             break;
         case 'x':
             fpower = 1;
             break;
         }
     }
-    value = argv[optind];
+    if(optind<argc)
+    	value = atoi(argv[optind]);
     int invalid = 0;
     if (value < 1 || value >50)
         invalid = 1;
@@ -49,8 +53,7 @@ int main(int argc, char* argv[])
     if (sub < 1 || sub>500)
         invalid = 1;
     if (invalid == 1) {
-        printf("Invalid Range!\n");
-        exit(0);
+        showUsage();
     }
     if (fpower) {
         value = value * value;
